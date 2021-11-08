@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "My webpack project",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve",
-    "build": "webpack --mode=production --node-env=production",
+    "prestart": "npm run build",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
+    "build": "rimraf dist && tsc",
+    "preserve": "npm run build",
+    "serve": "cross-env NODE_ENV=development concurrently \"tsc --watch\" \"nodemon -q dist/index.js\"",
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production --node-env=production",
     "watch": "webpack --watch",
-    "serve": "webpack serve",
     "lite": "lite-server"
   },
   "repository": {
@@ -25,13 +28,26 @@
   },
   "homepage": "https://github.com/lsolanodevop/toolbox_text#readme",
   "dependencies": {
+    "@types/body-parser": "^1.19.1",
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.6",
+    "axios": "^0.21.4",
+    "body-parser": "^1.19.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
     "lite-server": "^2.6.1",
-    "liteserver": "^0.3.0"
+    "liteserver": "^0.3.0",
+    "postman-request": "*",
+    "rimraf": "^3.0.2"
   },
   "devDependencies": {
     "@webpack-cli/generators": "^2.4.1",
+    "concurrently": "^6.3.0",
     "css-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
+    "nodemon": "^2.0.14",
     "prettier": "^2.4.1",
     "style-loader": "^3.2.1",
     "ts-loader": "^9.2.6",

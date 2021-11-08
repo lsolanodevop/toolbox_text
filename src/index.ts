@@ -3,7 +3,6 @@ import bodyParser from "body-parser";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import axios from "axios";
-// import { User } from "./usuario";
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -14,13 +13,26 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("<h1> Hello from the Typescript world!</h1>");
+  res.send("<h1> Toolbox Test</h1>");
 });
 
 app.post("/create", (req: Request, res: Response) => {
   const user = JSON.parse(JSON.stringify(req.query));
   let test: User = new User(user.user, user.name, user.lastName, user.password);
   test.sendUser(test);
+});
+
+app.get("/getProduct/:id", (req: Request, res: Response) => {
+  
+  const productID = parseInt(req.params.id);
+  getProduct(productID);
+});
+
+app.get("/checkProduct/:id/description/:description", (req: Request, res: Response) => {
+  const productID = parseInt(req.params.id);
+  const productDescription = req.params.description;
+  let Product: Producto = new Producto(productID, productDescription, ProductStatus.Available);
+  Product.uploadProduct(Product);
 });
 
 app.listen(PORT, () => console.log(`Running on ${PORT} ⚡`));
@@ -55,4 +67,63 @@ class User {
         }
       });
   }
+}
+
+ class Producto{
+  id: number;
+  description: string;
+  status: ProductStatus;
+
+  constructor(id:number, description: string, status: ProductStatus) {
+    this.id = id;
+    this.description = description;
+    this.status = status;
+  }
+
+   
+  public uploadProduct(Product: Producto) {
+    axios.post("http://serviciodetercero.com/upload/product", {
+      Id: Product.id,
+      Description: Product.description,
+      Status: Product.status
+    })
+      .then(response => {
+        if (response.status == 200) {
+          console.log("The Product was Upload Succesfully");
+        }
+      }).catch(error => {
+        const log = error.code;
+        if (log == "ENOTFOUND") {
+          console.log("Cannot reach: " + error.hostname); 
+        } else if (log == "403") {
+          console.log("Cannot reach the server"); 
+        } else if (log == "401") {
+          console.log("Cannot reach the server"); 
+        }
+      });
+  }
+   
+}
+
+enum ProductStatus{
+  Available,
+  Reserved,
+  OutOfStock
+}
+
+function getProduct(productID: number) {
+  axios.get("http://serviciodetercero.com/getProduct/"+productID).then(res => {
+      console.log(res);
+    }).catch(error => {
+      const log = error.code;
+        if (log == "ENOTFOUND") {
+          console.log("Cannot reach: " + error.hostname); 
+        } else if (log == "PD-001") {
+          console.log(" The Product you are searching for does not exists ");
+        } else if (log == "PD-002") {
+          console.log(" The Product you are searching exists but is reserved");
+        } else if (log == "PD-003") {
+          console.log(" The Product you are searching exists but is out of stock");
+        }
+    });
 }

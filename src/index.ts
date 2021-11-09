@@ -4,7 +4,8 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import axios from "axios";
 import mongoose from "mongoose";
-import { Pool, Client } from "pg";
+import * as pg from "pg";
+const { Client } = pg;
 dotenv.config();
 // Defining Imports
 const PORT = process.env.PORT || 3000;
@@ -152,9 +153,9 @@ function connectBD(ip:string,port:string,IsMongoConnection:boolean) {
       password: "testUser",
       port: parseInt(port)
     });
-    client.connect(error => {
-      if (error) {
-        console.log("Could not find the Database", error.stack);
+    client.connect(err => {
+      if (err) {
+        console.log("Could not find the Database", err);
       } else {
         console.log("Connected to the Database");
       }
